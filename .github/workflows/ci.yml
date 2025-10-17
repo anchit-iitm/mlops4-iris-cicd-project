@@ -25,7 +25,9 @@ jobs:
       - name: Install Python & CML dependencies
         run: |
           pip install -r requirements.txt
-          npm install -g cml
+          npm i -g @dvcorg/cml
+          npm install -g vega-cli vega-lite
+          sudo apt-get install -y libcairo2-dev libfontconfig-dev libgif-dev libjpeg-dev libpango1.0-dev librsvg2-dev
 
       - name: Authenticate to GCP
         uses: 'google-github-actions/auth@v1'
