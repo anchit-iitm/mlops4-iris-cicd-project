@@ -34,7 +34,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Run tests and pipe the output to a report file
-          pytest > report.txt
+          python3 -m pytest > report.txt
           # Print the report to the job log
           cat report.txt
           # Use CML to create a comment on the PR from the report file
