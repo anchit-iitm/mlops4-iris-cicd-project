@@ -1,0 +1,59 @@
+name: Iris Model CI
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+
+
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install Python & CML dependencies
+        run: |
+          pip install -r requirements.txt
+          npm i -g @dvcorg/cml
+          npm install -g vega-cli vega-lite
+          sudo apt-get install -y libcairo2-dev libfontconfig-dev libgif-dev libjpeg-dev libpango1.0-dev librsvg2-dev
+
+      - name: Authenticate to GCP
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Pull DVC data and model
+        run: dvc pull
+
+      - name: Run Pytest and Create CML Report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pytest > report.txt
+          cat report.txt
+          echo "## Pytest Sanity Check" > cml_report.md
+          echo "" >> cml_report.md
+          echo '```' >> cml_report.md
+          cat report.txt >> cml_report.md
+          echo '```' >> cml_report.md
+          cml comment create cml_report.md
