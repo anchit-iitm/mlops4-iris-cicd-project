@@ -15,10 +15,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      #  Seting up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Python & CML dependencies
+        run: |
+          pip install -r requirements.txt
+         #  Installing CML using npm
+          npm install -g @dvcai/cml
 
       - name: Authenticate to GCP
         uses: 'google-github-actions/auth@v1'
@@ -28,14 +37,10 @@ jobs:
       - name: Pull DVC data and model
         run: dvc pull
 
-      - name: Run Pytest and create report
-        # The env variable is crucial for CML to post comments
+      - name: Run Pytest and Create CML Report
         env:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Run tests and pipe the output to a report file
-          python3 -m pytest > report.txt
-          # Print the report to the job log
+          pytest > report.txt
           cat report.txt
-          # Use CML to create a comment on the PR from the report file
           cml comment create --headline "## Pytest Sanity Check" report.txt
