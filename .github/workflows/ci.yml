@@ -41,4 +41,5 @@ jobs:
         run: |
           pytest > report.txt
           cat report.txt
-          cml comment create --headline "## Pytest Sanity Check" report.txt
+          # FIX: Use npx to reliably execute the cml command
+          npx cml comment create --headline "## Pytest Sanity Check" report.txt
