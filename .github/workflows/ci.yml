@@ -17,7 +17,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      #  Seting up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -26,7 +25,6 @@ jobs:
       - name: Install Python & CML dependencies
         run: |
           pip install -r requirements.txt
-         #  Installing CML using npm
           npm install -g @dvcai/cml
 
       - name: Authenticate to GCP
