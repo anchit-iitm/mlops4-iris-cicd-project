@@ -1,0 +1,41 @@
+name: Iris Model CI
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate to GCP
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Pull DVC data and model
+        run: dvc pull
+
+      - name: Run Pytest and create report
+        # The env variable is crucial for CML to post comments
+        env:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Run tests and pipe the output to a report file
+          pytest > report.txt
+          # Print the report to the job log
+          cat report.txt
+          # Use CML to create a comment on the PR from the report file
+          cml comment create --headline "## Pytest Sanity Check" report.txt
