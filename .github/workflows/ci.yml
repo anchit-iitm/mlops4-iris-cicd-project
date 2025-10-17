@@ -25,7 +25,7 @@ jobs:
       - name: Install Python & CML dependencies
         run: |
           pip install -r requirements.txt
-          npm install -g cml
+          npm install -g @iterative/cml
 
       - name: Authenticate to GCP
         uses: 'google-github-actions/auth@v1'
@@ -37,9 +37,13 @@ jobs:
 
       - name: Run Pytest and Create CML Report
         env:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pytest > report.txt
           cat report.txt
-          # FIX: Use npx to reliably execute the cml command
-          npx cml comment create --headline "## Pytest Sanity Check" report.txt
+          echo "## Pytest Sanity Check" > cml_report.md
+          echo "" >> cml_report.md
+          echo '```' >> cml_report.md
+          cat report.txt >> cml_report.md
+          echo '```' >> cml_report.md
+          cml comment create cml_report.md
