@@ -47,7 +47,7 @@ jobs:
 
       - name: Run Pytest and Create CML Report
         env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pytest > report.txt
           cat report.txt
